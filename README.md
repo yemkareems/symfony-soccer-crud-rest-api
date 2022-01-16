@@ -4,19 +4,20 @@ symfony 5.2.14 PHP 7.3.33
 edit .env file in root and set proper mysql credentials. create database named crud mentioned there in mysql
 
 Then do 
-
+```sh
 composer update
 php bin/console doctrine:migrations:migrate
 php bin/console doctrine:fixtures:load
 symfony serve
-
+```
 User with username: kareem@gmail.com / password: kareem ROLE_ADMIN ll be created
 
 Auth of api routes done using jwt token. private key / public key available inside config/jwt/
-
+```sh
 $ openssl genpkey -out config/jwt/private.pem-back -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
 $ openssl pkey -in config/jwt/private.pem-back -out config/jwt/public.pem -pubout
 passphrase 123456
+```
 
 The same used in .env file
 
@@ -35,6 +36,8 @@ curl -X POST \
   -H 'postman-token: e9048ca9-da83-3937-1fba-f3df89d26496' \
   -F password=kareem \
   -F username=kareem@gmail.com
+  
+  Use the response token mentioned in the above api as bearer token for all other requests.
 
 list_teams:
   path: /list/teams

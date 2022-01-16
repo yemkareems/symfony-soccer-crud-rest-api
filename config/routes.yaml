@@ -1,0 +1,80 @@
+api_login_check:
+  path: /api/login_check
+  controller: App\Controller\AuthController::login
+  methods: [ POST ]
+
+list_teams:
+  path: /list/teams
+  controller: App\Controller\TeamController::list
+  methods: [ GET ]
+
+list_team_players:
+  path: /list/players/{teamId}
+  controller: App\Controller\TeamController::listPlayers
+  methods: [ GET ]
+
+create_team:
+  path: /api/team/create
+  controller: App\Controller\TeamController::create
+  methods: [POST]
+
+delete_team:
+  path: /api/team/delete
+  controller: App\Controller\TeamController::delete
+  methods: [ DELETE ]
+
+edit_team:
+  path: /api/team/edit
+  controller: App\Controller\TeamController::edit
+  methods: [ PUT ]
+
+create_player:
+  path: /api/player/create
+  controller: App\Controller\PlayerController::create
+  methods: [POST]
+
+delete_player:
+  path: /api/player/delete
+  controller: App\Controller\PlayerController::delete
+  methods: [ DELETE ]
+
+edit_player:
+  path: /api/player/edit
+  controller: App\Controller\PlayerController::edit
+  methods: [ PUT ]
+
+app:
+  path: /{params}
+  controller: App\Controller\DefaultController::index
+  requirements:
+    params: "^(?!admin|api).+"
+
+register:
+  path: /register
+  controller: App\Controller\AuthController::register
+  methods: [ POST ]
+
+api:
+  path: /api
+  controller: App\Controller\AuthController::api
+
+create:
+  path: /user/create
+  controller: App\Controller\UserController::create
+  methods: [POST]
+
+delete:
+  path: /user/delete
+  controller: App\Controller\UserController::delete
+  methods: [ POST ]
+
+edit:
+  path: /user/edit
+  controller: App\Controller\UserController::edit
+  methods: [ POST ]
+
+view:
+  path: /user/view/{email}
+  controller: App\Controller\UserController::view
+  methods: [ GET ]
+

@@ -43,12 +43,6 @@ edit_player:
   controller: App\Controller\PlayerController::edit
   methods: [ PUT ]
 
-app:
-  path: /{params}
-  controller: App\Controller\DefaultController::index
-  requirements:
-    params: "^(?!admin|api).+"
-
 register:
   path: /register
   controller: App\Controller\AuthController::register
@@ -78,3 +72,8 @@ view:
   controller: App\Controller\UserController::view
   methods: [ GET ]
 
+app:
+  path: /{params}
+  controller: App\Controller\DefaultController::index
+  requirements:
+    params: "^(?!admin|api).+"

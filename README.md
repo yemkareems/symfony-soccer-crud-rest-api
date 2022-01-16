@@ -10,7 +10,15 @@ php bin/console doctrine:migrations:migrate
 php bin/console doctrine:fixtures:load
 symfony serve
 
-User with kareem@gmail.com / kareem ROLE_ADMIN ll be created
+User with username: kareem@gmail.com / password: kareem ROLE_ADMIN ll be created
+
+Auth of api routes done using jwt token. private key / public key available inside config/jwt/
+
+$ openssl genpkey -out config/jwt/private.pem-back -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
+$ openssl pkey -in config/jwt/private.pem-back -out config/jwt/public.pem -pubout
+passphrase 123456
+
+The same used in .env file
 
 Here are routes for soccer CRUD API &#8595;
 
@@ -46,6 +54,10 @@ list_team_players:
 curl -X GET   http://127.0.0.1:8000/list/players/1
 
 ![](api-screenshots/listTeamPlayers.png)
+
+offset and limit can be used to paginate the players default offset is 0 and limit is 10
+
+http://127.0.0.1:8000/list/players/1?offset=0&limit=1
 
 create_team:
   path: /api/team/create

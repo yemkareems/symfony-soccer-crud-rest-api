@@ -17,6 +17,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Team
 {
 
+    const DEFAULT_OFFSET = 0;
+
+    const DEFAULT_LIMIT = 10;
     /**
      * @ORM\OneToMany(targetEntity="Player", mappedBy="team", fetch="LAZY")
      */

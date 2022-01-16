@@ -148,12 +148,23 @@ class TeamController extends AbstractController
     public function listPlayers(int $teamId, Request $request){
 	$teamId = urldecode($teamId);
 
+        $offset = $request->get('offset', Team::DEFAULT_OFFSET);
+        $limit = $request->get('limit', Team::DEFAULT_LIMIT);
+
+        //Resetting to zero values if negative
+        if ($limit < 0) {
+            $limit = Team::DEFAULT_LIMIT;
+        }
+
+        //Resetting to zero values if negative
+        if ($offset < 0) {
+            $offset = Team::DEFAULT_OFFSET;
+        }
+
         $repository = $this->getDoctrine()->getRepository(Team::class);
-        $details       = $repository->getTeamPlayers([
-            'teamId' => $teamId,
-        ]);
-
-
+        $details       = $repository->getTeamPlayers(
+             $teamId, $offset, $limit
+        );
 
         return new JsonResponse($details, 200);
 

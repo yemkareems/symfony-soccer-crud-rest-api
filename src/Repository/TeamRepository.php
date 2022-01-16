@@ -81,7 +81,7 @@ class TeamRepository extends ServiceEntityRepository
      * @param $limit
      * @return mixed
      */
-    public function getTeamPlayers($teamId, $offset=0, $limit=5)
+    public function getTeamPlayers($teamId, $offset, $limit)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
 	$team = $qb->select(array('t.id as teamId', 't.name as teamName', 't.logo as teamLogo', 'count(p.id) as noOfPlayers'))

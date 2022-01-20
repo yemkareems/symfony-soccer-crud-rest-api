@@ -49,6 +49,7 @@ security:
     - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/list/teams, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/list/players/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/player/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/user/create, roles: ROLE_ADMIN }
     - { path: ^/user/edit, roles: ROLE_USER }

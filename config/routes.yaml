@@ -14,7 +14,7 @@ get_team_detail:
   methods: [ GET ]
 
 get_player_detail:
-  path: /api/player/{playerId}
+  path: /player/{playerId}
   controller: App\Controller\PlayerController::getPlayerDetail
   methods: [ GET ]
 

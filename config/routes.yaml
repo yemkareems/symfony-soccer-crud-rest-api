@@ -5,7 +5,17 @@ api_login_check:
 
 list_teams:
   path: /list/teams
-  controller: App\Controller\TeamController::list
+  controller: App\Controller\TeamController::listTeams
+  methods: [ GET ]
+
+get_team_detail:
+  path: /api/team/{teamId}
+  controller: App\Controller\TeamController::getTeamDetail
+  methods: [ GET ]
+
+get_player_detail:
+  path: /api/player/{playerId}
+  controller: App\Controller\PlayerController::getPlayerDetail
   methods: [ GET ]
 
 list_team_players:
@@ -71,9 +81,3 @@ view:
   path: /user/view/{email}
   controller: App\Controller\UserController::view
   methods: [ GET ]
-
-app:
-  path: /{params}
-  controller: App\Controller\DefaultController::index
-  requirements:
-    params: "^(?!admin|api).+"

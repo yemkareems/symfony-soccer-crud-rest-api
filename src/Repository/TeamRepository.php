@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Doctrine\ORM\Query\Expr\Join;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @method Team|null find($id, $lockMode = null, $lockVersion = null)
@@ -49,9 +50,7 @@ class TeamRepository extends ServiceEntityRepository
         }
 
         $team = $this->find($teamId);
-        if (!$team) {
-            throw new HttpException(Response::HTTP_NOT_FOUND, "Team not found");
-        }
+
         return $team;
     }
 
@@ -71,6 +70,24 @@ class TeamRepository extends ServiceEntityRepository
             ->setParameter('teamId', $teamId)
             ->groupBy('t.id')
             ->getQuery()->getResult();
+    }
+
+   /**
+     * Get all teams
+     *
+     * @param $limit
+     * @param $offset
+     * @return mixed
+     */
+    public function getTeamList($limit, $offset) {
+
+	$qb = $this->getEntityManager()->createQueryBuilder();
+	$teams = $qb->select(array('t.id as teamId', 't.name as teamName', 't.logo as teamLogo'))
+            ->from('App\Entity\Team', 't')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()->getResult();
+	return ["teams" => $teams];
     }
 
     /**
@@ -100,7 +117,7 @@ class TeamRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()->getResult();
-	return ["team"=> $team, "players" => $players];
+	return ["team" => $team, "players" => $players];
     }
 
     /**

@@ -25,12 +25,12 @@ class TeamController extends AbstractController
         $validator = Validation::createValidator();
         $constraint = new Assert\Collection(array(
             // the keys correspond to the keys in the input array
-            'teamName' => new Assert\Length(array('min' => 1)),
+            'teamName' => new Assert\Length(array('min' => 1, 'max' => 255)),
             'teamLogo' => new Assert\Url()
         ));
         $violations = $validator->validate($data, $constraint);
         if ($violations->count() > 0) {
-            return new JsonResponse(["error" => (string)$violations], 500);
+            return new JsonResponse(["error" => (string)$violations], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $teamName = $data['teamName'];
         $teamLogo = $data['teamLogo'];
@@ -42,13 +42,12 @@ class TeamController extends AbstractController
         ;
 
         try {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($team);
-            $entityManager->flush();
+            $repository = $this->getDoctrine()->getRepository(Team::class);
+            $team   = $repository->save($team);
         } catch (\Exception $e) {
-            return new JsonResponse(["error" => $e->getMessage()], 500);
+            return new JsonResponse(["error" => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return new JsonResponse(["success" => $teamName. " has been created!"], 200);
+        return new JsonResponse(["success" => $teamName. " has been created!"], Response::HTTP_OK);
     }
 
     public function delete(Request $request)
@@ -60,18 +59,15 @@ class TeamController extends AbstractController
                 'id' => $teamId,
             ]);
 	    if($team){
-		    $teamName = $team->getName();
 
-		    $entityManager = $this->getDoctrine()->getManager();
-		    $entityManager->remove($team);
-		    $entityManager->flush();
-            return new Response(sprintf('%s successfully removed.',$teamName));
+	        $repository->delete($team);
+		    return new JsonResponse(["success" => $team->getName()." successfully removed.!"], Response::HTTP_OK);
 	    } else {
-		 return new JsonResponse(["error" => "Team not found and deleted!"], 500);
+ 		    return new JsonResponse(["error" => "Team not found and deleted!"], Response::HTTP_NOT_FOUND);
 	    }
  
         } catch (\Exception $e) {
-            return new JsonResponse(["error" => "Team not deleted as players associated with same!"], 500);
+            return new JsonResponse(["error" => "Team not deleted as players associated with same!"], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -90,15 +86,15 @@ class TeamController extends AbstractController
                 ]);
 
                 if (!$team) {
-                    return new JsonResponse(["error" => 'Team not exists'], 500);
+                    return new JsonResponse(["error" => 'Team not exists'], Response::HTTP_NOT_FOUND);
                 }
             } else {
-                return new JsonResponse(["error" => 'Please set team id to edit'], 500);
+                return new JsonResponse(["error" => 'Please set team id to edit'], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
 
             if ($request->request->get('teamName')) {
                 $data['teamName'] = $request->request->get('teamName');
-                $validateData['teamName'] = new Assert\Length(array('min' => 1));
+                $validateData['teamName'] = new Assert\Length(array('min' => 1, 'max' => 255));
                 $team->setName($data['teamName']);
             }
 
@@ -114,39 +110,64 @@ class TeamController extends AbstractController
 
                 $violations = $validator->validate($data, $constraint);
                 if ($violations->count() > 0) {
-                    return new JsonResponse(["error" => (string)$violations], 500);
+                    return new JsonResponse(["error" => (string)$violations], Response::HTTP_INTERNAL_SERVER_ERROR);
                 }
             }
 
 
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->flush();
+            $repository->save($team);
         } catch (\Exception $e) {
-            return new JsonResponse(["error" => $e->getMessage()], 500);
+            return new JsonResponse(["error" => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return new Response(sprintf('%s updated successfully!', $data['teamName']));
+	    return new JsonResponse(["success" => $data['teamName']. " updated successfully!"], Response::HTTP_OK);
+
     }
 
-    public function list(Request $request)
+    public function listTeams(Request $request)
     {
         $repository = $this->getDoctrine()->getRepository(Team::class);
-        $teams       = $repository->findAll();
+	$offset = $request->get('offset', Team::DEFAULT_OFFSET);
+        $limit = $request->get('limit', Team::DEFAULT_LIMIT);
 
-        if (!$teams) {
-            return new JsonResponse(["error" => 'Teams do not exists'], 500);
+        if ($limit < 0) {
+            $limit = Team::DEFAULT_LIMIT;
         }
-	foreach($teams as $teamObj) {
-        $data[] = [
-            'teamName'=>$teamObj->getName(),
-            'teamLogo' => $teamObj->getLogo(),
-            'teamId' => $teamObj->getId()
-        ];
-	}
-        return new JsonResponse($data, 200);
+
+        if ($offset < 0) {
+            $offset = Team::DEFAULT_OFFSET;
+        }
+        $teams       = $repository->getTeamList($limit, $offset);
+
+        if (!$teams['teams']) {
+            return new JsonResponse(["error" => 'No Teams Exist'], Response::HTTP_NOT_FOUND);
+        }
+	
+        return new JsonResponse($teams, Response::HTTP_OK);
+    }
+
+    public function getTeamDetail(int $teamId, Request $request){
+	    $teamId = urldecode($teamId);
+
+        $repository = $this->getDoctrine()->getRepository(Team::class);
+        $teamObj       = $repository->getTeam(
+             $teamId
+        );
+
+	    if (!$teamObj) {
+            return new JsonResponse(["error" => 'Team does not exists'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            "teamId"=> $teamObj->getId(),
+            "teamName"=> $teamObj->getName(),
+            "teamLogo"=> $teamObj->getLogo(),
+            ],
+            Response::HTTP_OK);
+
     }
 
     public function listPlayers(int $teamId, Request $request){
-	$teamId = urldecode($teamId);
+	    $teamId = urldecode($teamId);
 
         $offset = $request->get('offset', Team::DEFAULT_OFFSET);
         $limit = $request->get('limit', Team::DEFAULT_LIMIT);
@@ -166,7 +187,11 @@ class TeamController extends AbstractController
              $teamId, $offset, $limit
         );
 
-        return new JsonResponse($details, 200);
+	if (!$details['team']) {
+            return new JsonResponse(["error" => 'Team does not exists'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse($details, Response::HTTP_OK);
 
     }
 }

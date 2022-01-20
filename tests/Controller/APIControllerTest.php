@@ -37,6 +37,26 @@ class APIControllerTest extends WebTestCase
 
 	}
 
+    public function testGetTeamNotFoundTest() {
+
+        $token = $this->testLoginWithValidCredentials();
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+        $client->request('GET', '/api/team/1234', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $this->assertEquals(404, $client->getResponse()->getStatusCode());
+
+    }
+
+    public function testGetTeamFoundTest() {
+
+        $token = $this->testLoginWithValidCredentials();
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+        $client->request('GET', '/api/team/1', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+    }
+
 	public function testCreateTeamValidationTest() {
 
 		$token = $this->testLoginWithValidCredentials();

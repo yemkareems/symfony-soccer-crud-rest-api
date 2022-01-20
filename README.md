@@ -62,6 +62,17 @@ offset and limit can be used to paginate the players default offset is 0 and lim
 
 http://127.0.0.1:8000/list/players/1?offset=0&limit=1
 
+get_player_detail:
+  path: /player/{playerId}
+  controller: App\Controller\PlayerController::getPlayerDetail
+  methods: [ GET ]
+
+http://127.0.0.1:8000/player/3
+
+Anonymously allow to get playerDetails based on playerId
+
+![](api-screenshots/getPlayerDetail.png)
+
 create_team:
   path: /api/team/create
   controller: App\Controller\TeamController::create

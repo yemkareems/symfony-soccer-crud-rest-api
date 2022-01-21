@@ -122,9 +122,9 @@ class PlayerController extends AbstractController
 
 
             if ($request->request->get('playerId')) {
-                $repository  = $this->getDoctrine()->getRepository(Player::class); 
+                $playerRepository  = $this->getDoctrine()->getRepository(Player::class); 
                 $playerId    = $request->request->get('playerId');
-                $player        = $repository->findOneBy([
+                $player        = $playerRepository->findOneBy([
                     'id' => $playerId,
                 ]);
 
@@ -145,8 +145,8 @@ class PlayerController extends AbstractController
                 if (!$team) {
                     return new JsonResponse(["error" => 'Team does not exists'], Response::HTTP_INTERNAL_SERVER_ERROR);
                 } else {
-		            $player->setTeam($team);
-		        }
+	            $player->setTeam($team);
+	       }
             } else {
                 return new JsonResponse(["error" => 'Please set team id to player for edit'], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
@@ -181,8 +181,7 @@ class PlayerController extends AbstractController
                 }
             }
 
-            $repository  = $this->getDoctrine()->getRepository(Player::class);
-            $repository->save($player);
+            $playerRepository->save($player);
         } catch (\Exception $e) {
             return new JsonResponse(["error" => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
